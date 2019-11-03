@@ -1,3 +1,4 @@
+/// GraphQLアクセス用クエリーデータ
 export const getRepositories = `
 {
   viewer {
@@ -38,6 +39,7 @@ fragment rep on RepositoryConnection {
 }
 `;
 
+/// クエリー結果の構造
 export type QLRepositories = {
   nodes: {
     id: string;

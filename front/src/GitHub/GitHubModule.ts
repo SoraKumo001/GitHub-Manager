@@ -11,6 +11,7 @@ import {
 } from "./GraphQL/getRepositories";
 import { firebaseConfig } from "./Firebase/config";
 
+//リポジトリ情報の構造
 export type GitRepositories = {
   id: string;
   name: string;
@@ -27,28 +28,58 @@ export type GitRepositories = {
   description: string;
 }[];
 
+//Firebaseの初期化と認証スコープの定義
 firebase.initializeApp(firebaseConfig);
 const provider = new firebase.auth.GithubAuthProvider();
-provider.addScope("repo");
-provider.addScope("read:org");
+["repo", "read:org"].forEach(scope => provider.addScope(scope));
 
+/**
+ *github認証情報
+ *
+ * @interface GitUser
+ */
 interface GitUser {
   name: string;
   token: string;
 }
+/**
+ *Reduxのストア保存ステータス
+ *
+ * @interface State
+ */
 interface State {
   gitUser?: GitUser;
   repositories?: GitRepositories;
   loading: boolean;
 }
 
+/**
+ *GitHubアクセス用Reduxモジュール
+ *
+ * @export
+ * @class GitHubModule
+ * @extends {ReduxModule<State>}
+ */
 export class GitHubModule extends ReduxModule<State> {
+  //Storeの初期状態
   static defaultState: State = JSON.parse(
     localStorage.getItem("saveInfo") || '{"loading":false}'
   ) as State;
+
+  /**
+   *ユーザ名の取得
+   *
+   * @returns
+   * @memberof GitHubModule
+   */
   public getLoginName() {
     return this.getState("gitUser", "name");
   }
+  /**
+   *GitHubApiログイン処理
+   *
+   * @memberof GitHubModule
+   */
   public login() {
     firebase
       .auth()
@@ -67,22 +98,31 @@ export class GitHubModule extends ReduxModule<State> {
         }
       });
   }
+  /**
+   *GitHubAPIログアウト処理
+   *
+   * @memberof GitHubModule
+   */
   public logout() {
     this.setState({ gitUser: undefined });
     localStorage.removeItem("saveInfo");
     firebase.auth().signOut();
   }
-  public getInfo() {
-    return this.sendGitHub(`query {
-      viewer {
-        login
-      }
-    }`);
-  }
+  /**
+   *情報取得状況を返す
+   *
+   * @returns
+   * @memberof GitHubModule
+   */
   public isLoading() {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this.getState("loading")!;
   }
+  /**
+   *リポジトリの情報を返す
+   *
+   * @returns
+   * @memberof GitHubModule
+   */
   public getRepositories() {
     this.setState({ loading: true });
     return this.sendGitHub(getRepositories)
@@ -121,6 +161,14 @@ export class GitHubModule extends ReduxModule<State> {
         this.setState({ loading: false });
       });
   }
+
+  /**
+   *GitHubAPIに情報を要求する
+   *
+   * @param {(string | object)} params
+   * @returns
+   * @memberof GitHubModule
+   */
   public sendGitHub(params: string | object) {
     const token = this.getState("gitUser", "token")! as string;
     return Adapter.sendJsonAsync(

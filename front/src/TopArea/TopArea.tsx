@@ -1,9 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { UserButton } from "./UserButton";
+import { LogoutWindowModule, LogoutWindow } from "./LogoutWindow";
 import { CircleButton } from "../Parts/CircleButton";
 import { GitHubModule } from "../GitHub/GitHubModule";
 import { useModule } from "@jswf/redux-module";
+import { WindowState } from "@jswf/react";
 
 const Root = styled.div`
   z-index: 100;
@@ -29,6 +30,8 @@ const Root = styled.div`
 
 export function TopArea() {
   const gitHubModule = useModule(GitHubModule);
+  const logoutWindowModule = useModule(LogoutWindowModule, undefined, true);
+  const loginName = gitHubModule.getLoginName();
   const title = "GitHub Manager";
   return (
     <Root>
@@ -37,8 +40,17 @@ export function TopArea() {
         <CircleButton onClick={() => gitHubModule.getRepositories()}>
           更新
         </CircleButton>
-        <UserButton />
+        <CircleButton
+          onClick={() => {
+            loginName
+              ? logoutWindowModule.setWindowState(WindowState.NORMAL)
+              : gitHubModule.login();
+          }}
+        >
+          {loginName || "未ログイン"}
+        </CircleButton>
       </div>
+      <LogoutWindow />
     </Root>
   );
 }
