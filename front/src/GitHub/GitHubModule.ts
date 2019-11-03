@@ -1,74 +1,16 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import * as firebase from "firebase";
+import * as firebase from "firebase/app";
+import "firebase/auth";
 import { ReduxModule } from "@jswf/redux-module";
 import { Adapter } from "@jswf/adapter";
 import { hasProperty } from "./hasProperty";
+import {
+  getRepositories,
+  QLRepositoryResult,
+  QLRepositories
+} from "./GraphQL/getRepositories";
+import { firebaseConfig } from "./Firebase/config";
 
-const getRepositories = `
-{
-  viewer {
-    name:login
-    repositories(first: 100) {
-      ...rep
-    }
-    organizations(first: 100) {
-      nodes {
-        name
-        repositories(first: 100) {
-          ...rep
-        }
-      }
-    }
-  }
-}
-
-fragment rep on RepositoryConnection {
-  nodes {
-    id
-    url
-    name
-    isPrivate
-    branches: refs(first: 1, refPrefix: "refs/heads/") {
-      totalCount
-    }
-    stargazers{
-      totalCount
-    }
-    createdAt
-    updatedAt
-    description
-    defaultBranchRef {
-      name
-    }
-  }
-}
-
-`;
-type QLRepositories = {
-  nodes: {
-    id: string;
-    name: string;
-    url: string;
-    isPrivate: boolean;
-    branches: { totalCount: number };
-    stargazers: { totalCount: number };
-    defaultBranchRef: { name: string };
-    createdAt: string;
-    updatedAt: string;
-    description: string;
-  }[];
-};
-type QLRepositoryResult = {
-  data: {
-    viewer: {
-      name: string;
-      organizations: {
-        nodes: { name: string; repositories: QLRepositories }[];
-      };
-      repositories: QLRepositories;
-    };
-  };
-};
 export type GitRepositories = {
   id: string;
   name: string;
@@ -85,12 +27,7 @@ export type GitRepositories = {
   description: string;
 }[];
 
-const config = {
-  apiKey: "AIzaSyA35Sjku0IzTmZmaZP5y12jrtUZBmXbO9A",
-  authDomain: "github-manager-e0d8d.firebaseapp.com"
-};
-
-firebase.initializeApp(config);
+firebase.initializeApp(firebaseConfig);
 const provider = new firebase.auth.GithubAuthProvider();
 provider.addScope("repo");
 provider.addScope("read:org");
@@ -151,7 +88,6 @@ export class GitHubModule extends ReduxModule<State> {
     return this.sendGitHub(getRepositories)
       .then(e => {
         if (hasProperty<QLRepositoryResult["data"]>(e, "data")) {
-          //e.data.viewer.repositories
           const repositories: GitRepositories = [];
           const repPush = (name: string, node: QLRepositories["nodes"][0]) => {
             repositories.push({
