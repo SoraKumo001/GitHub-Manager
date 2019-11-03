@@ -39,25 +39,31 @@ export function RepositorieList() {
         <ListHeaders>
           <ListHeader width={200}>Name</ListHeader>
           <ListHeader>Private</ListHeader>
-          <ListHeader width={150}>Org</ListHeader>
           <ListHeader width={100}>DefBlanch</ListHeader>
           <ListHeader type="number">Branches</ListHeader>
           <ListHeader type="number">Stars</ListHeader>
-          <ListHeader width={180}>Created</ListHeader>
-          <ListHeader width={180}>Updated</ListHeader>
+          <ListHeader width={180}>Date</ListHeader>
           <ListHeader>Description</ListHeader>
         </ListHeaders>
         {repositories &&
           repositories.map(e => (
             <ListRow key={e.id} value={e}>
-              <ListItem>{e.name}</ListItem>
+              <ListItem value={e.name}>
+                <div>
+                  <div>{e.name}</div>
+                  <div>({e.org})</div>
+                </div>
+              </ListItem>
               <ListItem>{e.private && "*"}</ListItem>
-              <ListItem>{e.org}</ListItem>
               <ListItem>{e.branche.defaultName}</ListItem>
               <ListItem>{e.branche.count}</ListItem>
               <ListItem>{e.stars}</ListItem>
-              <ListItem>{dateFormat(e.createdAt, "yyyy/mm/dd hh:mm")}</ListItem>
-              <ListItem>{dateFormat(e.updatedAt, "yyyy/mm/dd hh:mm")}</ListItem>
+              <ListItem value={e.updatedAt.getTime()}>
+                <div>
+                  <div>U:{dateFormat(e.updatedAt, "yyyy/mm/dd hh:mm")}</div>
+                  <div>C:{dateFormat(e.createdAt, "yyyy/mm/dd hh:mm")}</div>
+                </div>
+              </ListItem>
               <ListItem>{e.description}</ListItem>
             </ListRow>
           ))}
