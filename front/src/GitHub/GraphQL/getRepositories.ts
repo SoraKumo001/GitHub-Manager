@@ -2,7 +2,7 @@
 export const getRepositories = `
 {
   viewer {
-    name:login
+    name: login
     repositories(first: 100) {
       ...rep
     }
@@ -22,21 +22,30 @@ fragment rep on RepositoryConnection {
     id
     url
     name
-    isPrivate
     branches: refs(first: 1, refPrefix: "refs/heads/") {
       totalCount
     }
-    stargazers{
+    stargazers {
       totalCount
     }
+    watchers {
+      totalCount
+    }
+    isPrivate
     createdAt
     updatedAt
     description
     defaultBranchRef {
       name
+      target {
+        ... on Commit {
+          message
+        }
+      }
     }
   }
 }
+
 `;
 
 /// クエリー結果の構造
@@ -47,8 +56,9 @@ export type QLRepositories = {
     url: string;
     isPrivate: boolean;
     branches: { totalCount: number };
+    watchers: { totalCount: number };
     stargazers: { totalCount: number };
-    defaultBranchRef: { name: string };
+    defaultBranchRef: { name: string; target: { message: string } };
     createdAt: string;
     updatedAt: string;
     description: string;

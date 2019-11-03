@@ -18,10 +18,12 @@ export type GitRepositories = {
   url: string;
   org: string;
   stars: number;
+  watchers: number;
   private: boolean;
   branche: {
     defaultName: string;
     count: number;
+    message: string;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -128,9 +130,9 @@ export class GitHubModule extends ReduxModule<State> {
     return this.sendGitHub(getRepositories)
       .then(e => {
         if (hasProperty<QLRepositoryResult["data"]>(e, "data")) {
-          const repositories: GitRepositories = [];
+          const repositories: { [key: string]: GitRepositories[0] } = {};
           const repPush = (name: string, node: QLRepositories["nodes"][0]) => {
-            repositories.push({
+            repositories[node.id] = {
               id: node.id,
               name: node.name,
               url: node.url,
@@ -139,14 +141,16 @@ export class GitHubModule extends ReduxModule<State> {
                 defaultName: node.defaultBranchRef
                   ? node.defaultBranchRef.name
                   : "",
-                count: node.branches.totalCount
+                count: node.branches.totalCount,
+                message: node.defaultBranchRef.target.message || ""
               },
               stars: node.stargazers.totalCount || 0,
+              watchers: node.watchers.totalCount || 0,
               org: name,
               createdAt: new Date(node.createdAt),
               updatedAt: new Date(node.updatedAt),
               description: node.description
-            });
+            };
           };
           e.data.viewer.repositories.nodes.forEach(node =>
             repPush(e.data.viewer.name, node)
@@ -154,7 +158,10 @@ export class GitHubModule extends ReduxModule<State> {
           e.data.viewer.organizations.nodes.forEach(org => {
             org.repositories.nodes.forEach(node => repPush(org.name, node));
           });
-          this.setState(repositories, "repositories");
+          const rep = Object.values(repositories).sort((a, b) => {
+            return b.updatedAt.getTime() - a.updatedAt.getTime();
+          });
+          this.setState(rep, "repositories");
         } else this.setState({ repositories: [] });
       })
       .finally(() => {

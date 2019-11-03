@@ -11,6 +11,22 @@ import { GitHubModule, GitRepositories } from "../GitHub/GitHubModule";
 import { useModule } from "@jswf/redux-module";
 import { LoadingImage } from "../Parts/LodingImage";
 import dateFormat from "dateformat";
+import styled from "styled-components";
+
+const Root = styled.div`
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  #name {
+    > div:nth-child(2) {
+      font-size: 60%;
+    }
+  }
+  #org {
+    font-size: 80%;
+    white-space: normal;
+  }
+`;
 
 export function RepositorieList() {
   const gitHubModule = useModule(GitHubModule);
@@ -24,7 +40,7 @@ export function RepositorieList() {
   }, [loginName]);
 
   return (
-    <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+    <Root>
       {loading && <LoadingImage />}
       <ListView
         ref={listView}
@@ -37,37 +53,43 @@ export function RepositorieList() {
         }
       >
         <ListHeaders>
-          <ListHeader width={200}>Name</ListHeader>
+          <ListHeader width={250}>Name</ListHeader>
+          <ListHeader width={100}>Org</ListHeader>
           <ListHeader>Private</ListHeader>
           <ListHeader width={100}>DefBlanch</ListHeader>
           <ListHeader type="number">Branches</ListHeader>
           <ListHeader type="number">Stars</ListHeader>
+          <ListHeader type="number">Watchers</ListHeader>
           <ListHeader width={180}>Date</ListHeader>
-          <ListHeader>Description</ListHeader>
+          <ListHeader>Commit Message</ListHeader>
         </ListHeaders>
         {repositories &&
           repositories.map(e => (
             <ListRow key={e.id} value={e}>
               <ListItem value={e.name}>
-                <div>
+                <div id="name">
                   <div>{e.name}</div>
-                  <div>({e.org})</div>
+                  <div>{e.description}</div>
                 </div>
+              </ListItem>
+              <ListItem>
+                <div id="org">{e.org}</div>
               </ListItem>
               <ListItem>{e.private && "*"}</ListItem>
               <ListItem>{e.branche.defaultName}</ListItem>
               <ListItem>{e.branche.count}</ListItem>
               <ListItem>{e.stars}</ListItem>
+              <ListItem>{e.watchers}</ListItem>
               <ListItem value={e.updatedAt.getTime()}>
                 <div>
-                  <div>U:{dateFormat(e.updatedAt, "yyyy/mm/dd hh:mm")}</div>
-                  <div>C:{dateFormat(e.createdAt, "yyyy/mm/dd hh:mm")}</div>
+                  <div>U:{dateFormat(e.updatedAt, "yyyy/mm/dd HH:mm")}</div>
+                  <div>C:{dateFormat(e.createdAt, "yyyy/mm/dd HH:mm")}</div>
                 </div>
               </ListItem>
-              <ListItem>{e.description}</ListItem>
+              <ListItem>{e.branche.message}</ListItem>
             </ListRow>
           ))}
       </ListView>
-    </div>
+    </Root>
   );
 }
