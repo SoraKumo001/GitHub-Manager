@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as firebase from "firebase";
 import { ReduxModule } from "@jswf/redux-module";
 import { Adapter } from "@jswf/adapter";
@@ -26,6 +27,7 @@ fragment rep on RepositoryConnection {
     id
     url
     name
+    isPrivate
     branches: refs(first: 1, refPrefix: "refs/heads/") {
       totalCount
     }
@@ -44,8 +46,10 @@ fragment rep on RepositoryConnection {
 `;
 type QLRepositories = {
   nodes: {
+    id: string;
     name: string;
     url: string;
+    isPrivate: boolean;
     branches: { totalCount: number };
     stargazers: { totalCount: number };
     defaultBranchRef: { name: string };
@@ -66,10 +70,12 @@ type QLRepositoryResult = {
   };
 };
 export type GitRepositories = {
+  id: string;
   name: string;
   url: string;
   org: string;
   stars: number;
+  private: boolean;
   branche: {
     defaultName: string;
     count: number;
@@ -86,7 +92,7 @@ const config = {
 
 firebase.initializeApp(config);
 const provider = new firebase.auth.GithubAuthProvider();
-provider.addScope("repo:status");
+provider.addScope("repo");
 provider.addScope("read:org");
 
 interface GitUser {
@@ -96,11 +102,12 @@ interface GitUser {
 interface State {
   gitUser?: GitUser;
   repositories?: GitRepositories;
+  loading: boolean;
 }
 
 export class GitHubModule extends ReduxModule<State> {
   static defaultState: State = JSON.parse(
-    localStorage.getItem("saveInfo") || "{}"
+    localStorage.getItem("saveInfo") || '{"loading":false}'
   ) as State;
   public getLoginName() {
     return this.getState("gitUser", "name");
@@ -135,35 +142,48 @@ export class GitHubModule extends ReduxModule<State> {
       }
     }`);
   }
+  public isLoading() {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this.getState("loading")!;
+  }
   public getRepositories() {
-    return this.sendGitHub(getRepositories).then(e => {
-      if (hasProperty<QLRepositoryResult["data"]>(e, "data")) {
-        //e.data.viewer.repositories
-        const repositories: GitRepositories = [];
-        const repPush = (name: string, node: QLRepositories["nodes"][0]) => {
-          repositories.push({
-            name: node.name,
-            url: node.url,
-            branche: {
-              defaultName: node.defaultBranchRef.name,
-              count: node.branches.totalCount
-            },
-            stars: node.stargazers.totalCount || 0,
-            org: name,
-            createdAt: new Date(node.createdAt),
-            updatedAt: new Date(node.updatedAt),
-            description: node.description
+    this.setState({ loading: true });
+    return this.sendGitHub(getRepositories)
+      .then(e => {
+        if (hasProperty<QLRepositoryResult["data"]>(e, "data")) {
+          //e.data.viewer.repositories
+          const repositories: GitRepositories = [];
+          const repPush = (name: string, node: QLRepositories["nodes"][0]) => {
+            repositories.push({
+              id: node.id,
+              name: node.name,
+              url: node.url,
+              private: node.isPrivate,
+              branche: {
+                defaultName: node.defaultBranchRef
+                  ? node.defaultBranchRef.name
+                  : "",
+                count: node.branches.totalCount
+              },
+              stars: node.stargazers.totalCount || 0,
+              org: name,
+              createdAt: new Date(node.createdAt),
+              updatedAt: new Date(node.updatedAt),
+              description: node.description
+            });
+          };
+          e.data.viewer.repositories.nodes.forEach(node =>
+            repPush(e.data.viewer.name, node)
+          );
+          e.data.viewer.organizations.nodes.forEach(org => {
+            org.repositories.nodes.forEach(node => repPush(org.name, node));
           });
-        };
-        e.data.viewer.repositories.nodes.forEach(node =>
-          repPush(e.data.viewer.name, node)
-        );
-        e.data.viewer.organizations.nodes.forEach(org => {
-          org.repositories.nodes.forEach(node => repPush(org.name, node));
-        });
-        this.setState(repositories, "repositories");
-      } else this.setState(undefined, "repositories");
-    });
+          this.setState(repositories, "repositories");
+        } else this.setState({ repositories: [] });
+      })
+      .finally(() => {
+        this.setState({ loading: false });
+      });
   }
   public sendGitHub(params: string | object) {
     const token = this.getState("gitUser", "token")! as string;
@@ -176,11 +196,8 @@ export class GitHubModule extends ReduxModule<State> {
             : params
       },
       { Authorization: `bearer ${token}` }
-    ).then((e: unknown | { message: string }) => {
-      hasProperty<string>(e, "message") &&
-        e.message === "Bad credentials" &&
-        this.logout();
-      return e;
+    ).catch(({ status }) => {
+      if (status === 401) this.logout();
     });
   }
 }

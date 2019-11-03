@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 import styled from "styled-components";
 import React, { useState } from "react";
 
@@ -6,20 +7,14 @@ import { CircleButton } from "../Parts/CircleButton";
 import { GitHubModule } from "../GitHub/GitHubModule";
 import { JSWindow, WindowState } from "@jswf/react";
 
-const Root = styled.div`
-  padding: 0.2em;
-`;
-
 const Logout = styled.div`
   display: flex;
   height: 100%;
   padding: 0.8em;
   box-sizing: border-box;
   flex-direction: column;
-  > div:nth-child(1) {
-    margin-left: auto;
-  }
-  > div:nth-child(2) {
+
+  > #message {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -41,7 +36,7 @@ export function UserButton() {
   const loginName = gitHubModule.getLoginName();
   const [logoutWindow, setLogoutWindow] = useState(WindowState.HIDE);
   return (
-    <Root>
+    <>
       <CircleButton
         onClick={() => {
           loginName
@@ -56,6 +51,7 @@ export function UserButton() {
           windowState={logoutWindow}
           title="ログアウト"
           clientStyle={{ backgroundColor: "#aaeeff" }}
+          onUpdate={e => setLogoutWindow(e.windowState)}
         >
           <Logout>
             <div>
@@ -67,6 +63,11 @@ export function UserButton() {
               </a>
             </div>
             <div>
+              <a target="_blank" href="https://github.com/logout">
+                GitHubのログアウト
+              </a>
+            </div>
+            <div id="message">
               <div>ログアウトしますか？</div>
             </div>
 
@@ -84,6 +85,6 @@ export function UserButton() {
           </Logout>
         </JSWindow>
       }
-    </Root>
+    </>
   );
 }
