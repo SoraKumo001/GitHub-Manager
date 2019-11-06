@@ -3,13 +3,13 @@ export const getRepositories = `
 {
   viewer {
     name: login
-    repositories(first: 100) {
+    repositories(last: 100) {
       ...rep
     }
-    organizations(first: 100) {
+    organizations(last: 100) {
       nodes {
         name
-        repositories(first: 100) {
+        repositories(last: 100) {
           ...rep
         }
       }
@@ -22,6 +22,9 @@ fragment rep on RepositoryConnection {
     id
     url
     name
+    owner{
+      login
+    }
     branches: refs(first: 1, refPrefix: "refs/heads/") {
       totalCount
     }
@@ -53,6 +56,7 @@ export type QLRepositories = {
   nodes: {
     id: string;
     name: string;
+    owner: { login: string };
     url: string;
     isPrivate: boolean;
     branches: { totalCount: number };
@@ -69,7 +73,7 @@ export type QLRepositoryResult = {
     viewer: {
       name: string;
       organizations: {
-        nodes: { name: string; repositories: QLRepositories }[];
+        nodes: ({ name: string; repositories: QLRepositories } | null)[];
       };
       repositories: QLRepositories;
     };

@@ -16,7 +16,7 @@ export type GitRepositories = {
   id: string;
   name: string;
   url: string;
-  org: string;
+  owner: string;
   stars: number;
   watchers: number;
   private: boolean;
@@ -146,7 +146,7 @@ export class GitHubModule extends ReduxModule<State> {
               },
               stars: node.stargazers.totalCount || 0,
               watchers: node.watchers.totalCount || 0,
-              org: name,
+              owner: node.owner.login,
               createdAt: new Date(node.createdAt),
               updatedAt: new Date(node.updatedAt),
               description: node.description
@@ -156,7 +156,8 @@ export class GitHubModule extends ReduxModule<State> {
             repPush(e.data.viewer.name, node)
           );
           e.data.viewer.organizations.nodes.forEach(org => {
-            org.repositories.nodes.forEach(node => repPush(org.name, node));
+            org &&
+              org.repositories.nodes.forEach(node => repPush(org.name, node));
           });
           const rep = Object.values(repositories).sort((a, b) => {
             return b.updatedAt.getTime() - a.updatedAt.getTime();

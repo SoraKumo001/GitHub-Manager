@@ -54,7 +54,7 @@ export function RepositorieList() {
       >
         <ListHeaders>
           <ListHeader width={250}>Name</ListHeader>
-          <ListHeader width={100}>Org</ListHeader>
+          <ListHeader width={100}>Owner</ListHeader>
           <ListHeader>Private</ListHeader>
           <ListHeader width={100}>DefBlanch</ListHeader>
           <ListHeader type="number">Branches</ListHeader>
@@ -72,8 +72,8 @@ export function RepositorieList() {
                   <div>{e.description}</div>
                 </div>
               </ListItem>
-              <ListItem>
-                <div id="org">{e.org}</div>
+              <ListItem value={e.owner}>
+                <div id="org">{e.owner}</div>
               </ListItem>
               <ListItem>{e.private && "*"}</ListItem>
               <ListItem>{e.branche.defaultName}</ListItem>
