@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ListView,
   ListHeaders,
@@ -35,8 +34,8 @@ export function RepositorieList() {
   const listView = useRef<ListView>(null);
   const loading = gitHubModule.isLoading();
   useEffect(() => {
-    gitHubModule.getRepositories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    //リポジトリデータが無ければ要求
+    if (!repositories || !repositories.length) gitHubModule.getRepositories();
   }, [loginName]);
 
   return (
@@ -76,17 +75,21 @@ export function RepositorieList() {
                 <div id="org">{e.owner}</div>
               </ListItem>
               <ListItem>{e.private && "*"}</ListItem>
-              <ListItem>{e.branche.defaultName}</ListItem>
-              <ListItem>{e.branche.count}</ListItem>
+              <ListItem>{(e.branche && e.branche.defaultName) || "-"}</ListItem>
+              <ListItem>{(e.branche && e.branche.count) || 0}</ListItem>
               <ListItem>{e.stars}</ListItem>
               <ListItem>{e.watchers}</ListItem>
-              <ListItem value={e.updatedAt.getTime()}>
+              <ListItem value={new Date(e.updatedAt).getTime()}>
                 <div>
-                  <div>U:{dateFormat(e.updatedAt, "yyyy/mm/dd HH:mm")}</div>
-                  <div>C:{dateFormat(e.createdAt, "yyyy/mm/dd HH:mm")}</div>
+                  <div>
+                    U:{dateFormat(new Date(e.updatedAt), "yyyy/mm/dd HH:mm")}
+                  </div>
+                  <div>
+                    C:{dateFormat(new Date(e.createdAt), "yyyy/mm/dd HH:mm")}
+                  </div>
                 </div>
               </ListItem>
-              <ListItem>{e.branche.message}</ListItem>
+              <ListItem>{e.branche && e.branche.message}</ListItem>
             </ListRow>
           ))}
       </ListView>

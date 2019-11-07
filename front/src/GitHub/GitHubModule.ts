@@ -1,15 +1,13 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import * as firebase from "firebase/app";
-import "firebase/auth";
 import { ReduxModule } from "@jswf/redux-module";
 import { Adapter } from "@jswf/adapter";
-import { hasProperty } from "./hasProperty";
+import { hasProperty } from "hasproperty-ts";
 import {
   getRepositories,
   QLRepositoryResult,
-  QLRepositories
+  QLRepositories,
+  getRepositoriesOrg
 } from "./GraphQL/getRepositories";
-import { firebaseConfig } from "./Firebase/config";
+import { FBGitAuthModule } from "./Firebase/FireBaseModule";
 
 //リポジトリ情報の構造
 export type GitRepositories = {
@@ -20,39 +18,25 @@ export type GitRepositories = {
   stars: number;
   watchers: number;
   private: boolean;
-  branche: {
+  branche?: {
     defaultName: string;
     count: number;
     message: string;
   };
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   description: string;
 }[];
 
-//Firebaseの初期化と認証スコープの定義
-firebase.initializeApp(firebaseConfig);
-const provider = new firebase.auth.GithubAuthProvider();
-["repo", "read:org"].forEach(scope => provider.addScope(scope));
-
-/**
- *github認証情報
- *
- * @interface GitUser
- */
-interface GitUser {
-  name: string;
-  token: string;
-}
 /**
  *Reduxのストア保存ステータス
  *
  * @interface State
  */
 interface State {
-  gitUser?: GitUser;
   repositories?: GitRepositories;
   loading: boolean;
+  scopes: string[];
 }
 
 /**
@@ -63,10 +47,9 @@ interface State {
  * @extends {ReduxModule<State>}
  */
 export class GitHubModule extends ReduxModule<State> {
+  static includes = [FBGitAuthModule];
   //Storeの初期状態
-  static defaultState: State = JSON.parse(
-    localStorage.getItem("saveInfo") || '{"loading":false}'
-  ) as State;
+  static defaultState: State = { loading: false, scopes: [] };
 
   /**
    *ユーザ名の取得
@@ -75,7 +58,17 @@ export class GitHubModule extends ReduxModule<State> {
    * @memberof GitHubModule
    */
   public getLoginName() {
-    return this.getState("gitUser", "name");
+    const firebaseModule = this.getModule(FBGitAuthModule);
+    return firebaseModule.getUserName();
+  }
+  public setScopes(scopes: string[]) {
+    this.setState({ scopes });
+  }
+  public getScopes() {
+    return this.getState("scopes")!;
+  }
+  public isScope(scope: string) {
+    return this.getState("scopes")!.indexOf(scope) >= 0;
   }
   /**
    *GitHubApiログイン処理
@@ -83,22 +76,8 @@ export class GitHubModule extends ReduxModule<State> {
    * @memberof GitHubModule
    */
   public login() {
-    firebase
-      .auth()
-      .signInWithPopup(provider)
-      .then(({ credential, additionalUserInfo }) => {
-        if (additionalUserInfo && credential) {
-          const name = additionalUserInfo.username;
-          const token = (credential as firebase.auth.AuthCredential & {
-            accessToken: string;
-          }).accessToken;
-          if (name && token) {
-            const gitUser = { name, token };
-            localStorage.setItem("saveInfo", JSON.stringify({ gitUser }));
-            this.setState({ gitUser });
-          }
-        }
-      });
+    const firebaseModule = this.getModule(FBGitAuthModule);
+    firebaseModule.login(this.getState("scopes")!);
   }
   /**
    *GitHubAPIログアウト処理
@@ -106,9 +85,9 @@ export class GitHubModule extends ReduxModule<State> {
    * @memberof GitHubModule
    */
   public logout() {
-    this.setState({ gitUser: undefined });
-    localStorage.removeItem("saveInfo");
-    firebase.auth().signOut();
+    const firebaseModule = this.getModule(FBGitAuthModule);
+    firebaseModule.logout();
+    this.setState({ repositories: [] });
   }
   /**
    *情報取得状況を返す
@@ -127,40 +106,45 @@ export class GitHubModule extends ReduxModule<State> {
    */
   public getRepositories() {
     this.setState({ loading: true });
-    return this.sendGitHub(getRepositories)
+    return this.sendGitHub(
+      this.isScope("read:org") ? getRepositoriesOrg : getRepositories
+    )
       .then(e => {
         if (hasProperty<QLRepositoryResult["data"]>(e, "data")) {
           const repositories: { [key: string]: GitRepositories[0] } = {};
-          const repPush = (name: string, node: QLRepositories["nodes"][0]) => {
+          const repPush = (_name: string, node: QLRepositories["nodes"][0]) => {
             repositories[node.id] = {
               id: node.id,
               name: node.name,
               url: node.url,
               private: node.isPrivate,
-              branche: {
-                defaultName: node.defaultBranchRef
-                  ? node.defaultBranchRef.name
-                  : "",
-                count: node.branches.totalCount,
-                message: node.defaultBranchRef.target.message || ""
-              },
+              branche: node.defaultBranchRef
+                ? {
+                    defaultName: node.defaultBranchRef.name,
+                    count: node.branches.totalCount,
+                    message: node.defaultBranchRef.target.message || ""
+                  }
+                : undefined,
               stars: node.stargazers.totalCount || 0,
               watchers: node.watchers.totalCount || 0,
               owner: node.owner.login,
-              createdAt: new Date(node.createdAt),
-              updatedAt: new Date(node.updatedAt),
+              createdAt: node.createdAt,
+              updatedAt: node.updatedAt,
               description: node.description
             };
           };
           e.data.viewer.repositories.nodes.forEach(node =>
             repPush(e.data.viewer.name, node)
           );
-          e.data.viewer.organizations.nodes.forEach(org => {
-            org &&
-              org.repositories.nodes.forEach(node => repPush(org.name, node));
-          });
+          e.data.viewer.organizations &&
+            e.data.viewer.organizations.nodes.forEach(org => {
+              org &&
+                org.repositories.nodes.forEach(node => repPush(org.name, node));
+            });
           const rep = Object.values(repositories).sort((a, b) => {
-            return b.updatedAt.getTime() - a.updatedAt.getTime();
+            return (
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+            );
           });
           this.setState(rep, "repositories");
         } else this.setState({ repositories: [] });
@@ -177,19 +161,24 @@ export class GitHubModule extends ReduxModule<State> {
    * @returns
    * @memberof GitHubModule
    */
-  public sendGitHub(params: string | object) {
-    const token = this.getState("gitUser", "token")! as string;
-    return Adapter.sendJsonAsync(
-      "https://api.github.com/graphql",
-      {
-        query:
-          typeof params === "object"
-            ? (params as { loc: { source: { body: string } } }).loc.source.body
-            : params
-      },
-      { Authorization: `bearer ${token}` }
-    ).catch(({ status }) => {
-      if (status === 401) this.logout();
-    });
+  public async sendGitHub(params: string | object) {
+    const firebaseModule = this.getModule(FBGitAuthModule);
+    const token = firebaseModule.getToken();
+    if (token) {
+      return Adapter.sendJsonAsync(
+        "https://api.github.com/graphql",
+        {
+          query:
+            typeof params === "object"
+              ? (params as { loc: { source: { body: string } } }).loc.source
+                  .body
+              : params
+        },
+        { Authorization: `bearer ${token}` }
+      ).catch(({ status }) => {
+        if (status === 401) this.logout();
+      });
+    }
+    return null;
   }
 }

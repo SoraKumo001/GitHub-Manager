@@ -26,15 +26,19 @@ const Logout = styled.div`
       font-weight: bold;
     }
   }
-  #link {
-    font-size: 60%;
-  }
   > * {
     margin: 0.2em;
   }
+  #link {
+    font-size: 60%;
+  }
+  #option {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 0.3em;
+  }
 `;
 
-export class LogoutWindowModule extends ReduxModule<{
+export class LoginWindowModule extends ReduxModule<{
   windowState: WindowState;
 }> {
   static defaultState = { windowState: WindowState.HIDE };
@@ -46,19 +50,21 @@ export class LogoutWindowModule extends ReduxModule<{
   }
 }
 
-export function LogoutWindow() {
+export function LoginWindow() {
   const gitHubModule = useModule(GitHubModule);
-  const logoutWindowModule = useModule(LogoutWindowModule);
-  const windowState = logoutWindowModule.getWindowState();
+  const loginWindowModule = useModule(LoginWindowModule);
+  const windowState = loginWindowModule.getWindowState();
+  const scopes = new Set(gitHubModule.getScopes());
+
   return (
     <>
       <JSWindow
         windowState={windowState}
-        title="ログアウト"
+        title="ログイン"
         clientStyle={{ backgroundColor: "#aaeeff" }}
         onUpdate={e =>
           windowState !== e.windowState &&
-          logoutWindowModule.setWindowState(e.windowState)
+          loginWindowModule.setWindowState(e.windowState)
         }
       >
         <Logout>
@@ -76,19 +82,52 @@ export function LogoutWindow() {
             </a>
           </div>
           <div id="message">
-            <div>ログアウトしますか？</div>
+            <div>ログインしますか？</div>
+            <div id="option">
+              <div>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={scopes.has("repo")}
+                    onChange={e => {
+                      e.target.checked
+                        ? scopes.add("repo")
+                        : scopes.delete("repo");
+                      console.log(scopes);
+                      gitHubModule.setScopes(Array.from(scopes));
+                    }}
+                  />
+                  プライベートリポジトリ
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={scopes.has("read:org")}
+                    onChange={e => {
+                      e.target.checked
+                        ? scopes.add("read:org")
+                        : scopes.delete("read:org");
+                      gitHubModule.setScopes(Array.from(scopes));
+                    }}
+                  />
+                  組織のポジトリ
+                </label>
+              </div>
+            </div>
           </div>
 
           <CircleButton
             onClick={() => {
-              logoutWindowModule.setWindowState(WindowState.HIDE);
-              gitHubModule.logout();
+              loginWindowModule.setWindowState(WindowState.HIDE);
+              gitHubModule.login();
             }}
           >
             OK
           </CircleButton>
           <CircleButton
-            onClick={() => logoutWindowModule.setWindowState(WindowState.HIDE)}
+            onClick={() => loginWindowModule.setWindowState(WindowState.HIDE)}
           >
             Cancel
           </CircleButton>

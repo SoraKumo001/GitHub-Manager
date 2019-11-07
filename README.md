@@ -12,24 +12,25 @@ GitHub GraphQL API v4 の練習用プログラム
 ├─dist [出力ディレクトリ]
 │  │  index.html
 │  └─js
-│          bundle.js
-│          bundle.js.map
+│     bundle.js
+│     bundle.js.map
 └─front
     │  webpack.config.js
     ├─public
     │      index.html
     └─src
         │  .eslintrc.json
-        │  index.tsx
+        │  config.ts [FirebaseのAPIキー]
+        │  index.tsx [Reduxの初期設定等]
+        |  App.tsx   [Application初期設定]
         │  resource.d.ts
         │  tsconfig.json
         ├─GitHub
         │  │  GitHubModule.ts
-        │  │  hasProperty.ts
         │  ├─Firebase
-        │  │      config.ts [FirebaseのAPIキー]
+        │  │      FireBaseModule.ts [Firebase]
         │  └─GraphQL
-        │          getRepositories.ts [GraphQLクエリ]
+        │         getRepositories.ts [GraphQLクエリ]
         ├─Parts
         │  │  FlexParent.tsx
         │  │

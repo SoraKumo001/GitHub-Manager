@@ -1,27 +1,25 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 import { ModuleReducer } from "@jswf/redux-module";
-import { TopArea } from "./TopArea/TopArea";
-import { RepositorieList } from "./RepositorieList/RepositorieList";
-import { FlexParent } from "./Parts/FlexParent";
+import { persistStore, persistReducer } from "redux-persist";
+import { PersistGate } from "redux-persist/integration/react";
+import storage from "redux-persist/lib/storage";
+import { App } from "./App";
 
-function App() {
-  return (
-    <>
-      <FlexParent>
-        <TopArea />
-        <RepositorieList />
-      </FlexParent>
-    </>
-  );
-}
-const store = createStore(ModuleReducer);
+const persistConfig = {
+  key: "root",
+  storage
+};
+
+const store = createStore(persistReducer(persistConfig, ModuleReducer));
+const persistor = persistStore(store);
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <PersistGate loading={null} persistor={persistor}>
+      <App />
+    </PersistGate>
   </Provider>,
   document.getElementById("root") as HTMLElement
 );

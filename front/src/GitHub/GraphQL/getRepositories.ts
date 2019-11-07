@@ -6,6 +6,48 @@ export const getRepositories = `
     repositories(last: 100) {
       ...rep
     }
+  }
+}
+
+fragment rep on RepositoryConnection {
+  nodes {
+    id
+    url
+    name
+    owner{
+      login
+    }
+    branches: refs(first: 1, refPrefix: "refs/heads/") {
+      totalCount
+    }
+    stargazers {
+      totalCount
+    }
+    watchers {
+      totalCount
+    }
+    isPrivate
+    createdAt
+    updatedAt
+    description
+    defaultBranchRef {
+      name
+      target {
+        ... on Commit {
+          message
+        }
+      }
+    }
+  }
+}
+`;
+export const getRepositoriesOrg = `
+{
+  viewer {
+    name: login
+    repositories(last: 100) {
+      ...rep
+    }
     organizations(last: 100) {
       nodes {
         name
@@ -48,9 +90,7 @@ fragment rep on RepositoryConnection {
     }
   }
 }
-
 `;
-
 /// クエリー結果の構造
 export type QLRepositories = {
   nodes: {
@@ -72,7 +112,7 @@ export type QLRepositoryResult = {
   data: {
     viewer: {
       name: string;
-      organizations: {
+      organizations?: {
         nodes: ({ name: string; repositories: QLRepositories } | null)[];
       };
       repositories: QLRepositories;
