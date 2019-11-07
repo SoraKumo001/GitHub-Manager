@@ -33,9 +33,15 @@ export function RepositorieList() {
   const loginName = gitHubModule.getLoginName();
   const listView = useRef<ListView>(null);
   const loading = gitHubModule.isLoading();
+  const firstUpdate = useRef(true);
   useEffect(() => {
+    //初回は無視
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
+    }
     //リポジトリデータが無ければ要求
-    if (!repositories || !repositories.length) gitHubModule.getRepositories();
+    gitHubModule.getRepositories();
   }, [loginName]);
 
   return (

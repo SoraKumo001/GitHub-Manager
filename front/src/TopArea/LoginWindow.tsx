@@ -59,6 +59,7 @@ export function LoginWindow() {
   return (
     <>
       <JSWindow
+        width={400}
         windowState={windowState}
         title="ログイン"
         clientStyle={{ backgroundColor: "#aaeeff" }}

@@ -2,7 +2,6 @@ import { ReduxModule } from "@jswf/redux-module";
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import { firebaseConfig } from "../../config";
-import undefined = require("firebase/auth");
 
 /**
  *保存ステータス
@@ -14,9 +13,6 @@ interface State {
   token: string | null;
 }
 
-//Firebaseの初期化
-firebase.initializeApp(firebaseConfig);
-
 /**
  *Firebase用GitHub認証モジュール
  *
@@ -26,12 +22,16 @@ firebase.initializeApp(firebaseConfig);
  */
 export class FBGitAuthModule extends ReduxModule<State> {
   static defaultState: State = { name: null, token: null };
+  static app?: firebase.app.App;
   /**
    *GitHubApiログイン処理
    *
    * @memberof FBGitAuthModule
    */
   public login(scopes: string[]) {
+    //Firebaseの初期化
+    if (!FBGitAuthModule.app)
+      FBGitAuthModule.app = firebase.initializeApp(firebaseConfig);
     //認証スコープの定義
     const provider = new firebase.auth.GithubAuthProvider();
     scopes.forEach(scope => provider.addScope(scope));
@@ -46,7 +46,11 @@ export class FBGitAuthModule extends ReduxModule<State> {
             accessToken: string;
           }).accessToken;
           if (name && token) {
-            this.setState({ name, token });
+            if (
+              this.getState("name") !== name &&
+              this.getState("token") !== token
+            )
+              this.setState({ name, token });
           }
         }
       });
@@ -58,7 +62,7 @@ export class FBGitAuthModule extends ReduxModule<State> {
    */
   public logout() {
     this.setState({ name: null, token: null });
-    firebase.auth().signOut();
+    if (FBGitAuthModule.app) firebase.auth().signOut();
   }
   public getToken() {
     return this.getState("token");
