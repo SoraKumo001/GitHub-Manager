@@ -97,7 +97,7 @@ export function LoginWindow() {
                       gitHubModule.setScopes(Array.from(scopes));
                     }}
                   />
-                  プライベートリポジトリ
+                  プライベートリポジトリにアクセス
                 </label>
               </div>
               <div>
@@ -112,7 +112,7 @@ export function LoginWindow() {
                       gitHubModule.setScopes(Array.from(scopes));
                     }}
                   />
-                  組織のポジトリ
+                  組織のポジトリにアクセス
                 </label>
               </div>
             </div>

@@ -1,9 +1,19 @@
 # GitHub Manager
 
+## 概要
+
 GitHub GraphQL API v4 の練習用プログラム
+
+## リンク
 
 - [動作サンプル](https://sorakumo001.github.io/GitHub-Manager/dist/)
 - [ソースコード](https://github.com/SoraKumo001/GitHub-Manager)
+
+## 動作画面
+
+![https://raw.githubusercontent.com/SoraKumo001/GitHub-Manager/screencap/cap.png](https://raw.githubusercontent.com/SoraKumo001/GitHub-Manager/screencap/cap.png)
+
+## ソースコードの構造
 
 ```txt
 [ファイル構造]
