@@ -1,59 +1,17 @@
-import styled from "styled-components";
 import React from "react";
 
-import { useModule, ReduxModule } from "@jswf/redux-module";
-import { CircleButton } from "../Parts/CircleButton";
-import { GitHubModule } from "../GitHub/GitHubModule";
+import { useModule } from "@jswf/redux-module";
+import { CircleButton } from "../../Parts/CircleButton";
+import { GitHubModule } from "../../GitHub/GitHubModule";
 import { JSWindow, WindowState } from "@jswf/react";
-import { githubConfig } from "../config";
-
-const Logout = styled.div`
-  display: flex;
-  height: 100%;
-  padding: 0.8em;
-  box-sizing: border-box;
-  flex-direction: column;
-
-  > #message {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    > div {
-      display: inline-block;
-      color: #224488;
-      font-weight: bold;
-    }
-  }
-  > * {
-    margin: 0.2em;
-  }
-  #link {
-    font-size: 60%;
-  }
-  #option {
-    background-color: rgba(255, 255, 255, 0.3);
-    padding: 0.3em;
-  }
-`;
-
-export class LoginWindowModule extends ReduxModule<{
-  windowState: WindowState;
-}> {
-  static defaultState = { windowState: WindowState.HIDE };
-  setWindowState(windowState: WindowState) {
-    this.setState({ windowState });
-  }
-  getWindowState() {
-    return this.getState("windowState")!;
-  }
-}
+import { githubConfig } from "../../config";
+import { WindowStyle } from "./WindowStyle";
+import { WindowModule } from "./WindowModule";
 
 export function LoginWindow() {
   const gitHubModule = useModule(GitHubModule);
-  const loginWindowModule = useModule(LoginWindowModule);
-  const windowState = loginWindowModule.getWindowState();
+  const windowModule = useModule(WindowModule, "Login");
+  const windowState = windowModule.getWindowState();
   const scopes = new Set(gitHubModule.getScopes());
 
   return (
@@ -65,10 +23,10 @@ export function LoginWindow() {
         clientStyle={{ backgroundColor: "#aaeeff" }}
         onUpdate={e =>
           windowState !== e.windowState &&
-          loginWindowModule.setWindowState(e.windowState)
+          windowModule.setWindowState(e.windowState)
         }
       >
-        <Logout>
+        <WindowStyle>
           <div id="link">
             <a
               target="_blank"
@@ -121,18 +79,18 @@ export function LoginWindow() {
 
           <CircleButton
             onClick={() => {
-              loginWindowModule.setWindowState(WindowState.HIDE);
+              windowModule.setWindowState(WindowState.HIDE);
               gitHubModule.login();
             }}
           >
             OK
           </CircleButton>
           <CircleButton
-            onClick={() => loginWindowModule.setWindowState(WindowState.HIDE)}
+            onClick={() => windowModule.setWindowState(WindowState.HIDE)}
           >
             Cancel
           </CircleButton>
-        </Logout>
+        </WindowStyle>
       </JSWindow>
     </>
   );

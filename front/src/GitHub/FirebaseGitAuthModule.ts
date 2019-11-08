@@ -1,7 +1,7 @@
 import { ReduxModule } from "@jswf/redux-module";
 import * as firebase from "firebase/app";
 import "firebase/auth";
-import { firebaseConfig } from "../../config";
+import { firebaseConfig } from "../config";
 
 /**
  *保存ステータス
@@ -20,7 +20,7 @@ interface State {
  * @class FBGitAuthModule
  * @extends {ReduxModule<State>}
  */
-export class FBGitAuthModule extends ReduxModule<State> {
+export class FirebaseGitAuthModule extends ReduxModule<State> {
   static defaultState: State = { name: null, token: null };
   static app?: firebase.app.App;
   /**
@@ -30,8 +30,8 @@ export class FBGitAuthModule extends ReduxModule<State> {
    */
   public login(scopes: string[]) {
     //Firebaseの初期化
-    if (!FBGitAuthModule.app)
-      FBGitAuthModule.app = firebase.initializeApp(firebaseConfig);
+    if (!FirebaseGitAuthModule.app)
+      FirebaseGitAuthModule.app = firebase.initializeApp(firebaseConfig);
     //認証スコープの定義
     const provider = new firebase.auth.GithubAuthProvider();
     scopes.forEach(scope => provider.addScope(scope));
@@ -62,7 +62,7 @@ export class FBGitAuthModule extends ReduxModule<State> {
    */
   public logout() {
     this.setState({ name: null, token: null });
-    if (FBGitAuthModule.app) firebase.auth().signOut();
+    if (FirebaseGitAuthModule.app) firebase.auth().signOut();
   }
   public getToken() {
     return this.getState("token");

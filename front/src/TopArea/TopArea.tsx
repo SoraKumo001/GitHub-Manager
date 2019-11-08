@@ -1,11 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import { LogoutWindowModule, LogoutWindow } from "./LogoutWindow";
+import { LogoutWindow } from "./Window/LogoutWindow";
+import { WindowModule } from "./Window/WindowModule";
 import { CircleButton } from "../Parts/CircleButton";
 import { GitHubModule } from "../GitHub/GitHubModule";
 import { useModule } from "@jswf/redux-module";
 import { WindowState } from "@jswf/react";
-import { LoginWindow, LoginWindowModule } from "./LoginWindow";
+import { LoginWindow } from "./Window/LoginWindow";
 
 const Root = styled.div`
   z-index: 100;
@@ -31,8 +32,8 @@ const Root = styled.div`
 
 export function TopArea() {
   const gitHubModule = useModule(GitHubModule);
-  const loginWindowModule = useModule(LoginWindowModule, undefined, true);
-  const logoutWindowModule = useModule(LogoutWindowModule, undefined, true);
+  const loginWindowModule = useModule(WindowModule, "Login", true);
+  const logoutWindowModule = useModule(WindowModule, "Logout", true);
   const loginName = gitHubModule.getLoginName();
   const title = "GitHub Manager";
   return (

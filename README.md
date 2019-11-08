@@ -16,42 +16,42 @@ GitHub GraphQL API v4 の練習用プログラム
 ## ソースコードの構造
 
 ```txt
-[ファイル構造]
-│  package.json
-│  README.md
-├─dist [出力ディレクトリ]
-│  │  index.html
-│  └─js
-│     bundle.js
-│     bundle.js.map
-└─front
-    │  webpack.config.js
-    ├─public
-    │      index.html
-    └─src
-        │  .eslintrc.json
-        │  config.ts [FirebaseのAPIキー]
-        │  index.tsx [Reduxの初期設定等]
-        |  App.tsx   [Application初期設定]
-        │  resource.d.ts
-        │  tsconfig.json
-        ├─GitHub
-        │  │  GitHubModule.ts
-        │  ├─Firebase
-        │  │      FireBaseModule.ts [Firebase]
-        │  └─GraphQL
-        │         getRepositories.ts [GraphQLクエリ]
-        ├─Parts
-        │  │  FlexParent.tsx
-        │  │
-        │  ├─CircleButton
-        │  │      index.tsx
-        │  └─LodingImage
-        │          index.tsx
-        │          loading.svg
-        ├─RepositorieList
-        │      RepositorieList.tsx
-        └─TopArea
-                LogoutWindow.tsx
-                TopArea.tsx
+.
+├── README.md
+├── dist [出力ディレクトリ]
+│   ├── index.html
+│   └── js
+│       ├── bundle.js
+│       └── bundle.js.map
+├── front
+│   ├── public
+│   │   └── index.html [トップページ定義]
+│   ├── src
+│   │   ├── App.tsx [Application初期設定]
+│   │   ├── GitHub
+│   │   │   ├── FirebaseGitAuthModule.ts  [FirebaseGit認証用モジュール]
+│   │   │   ├── GitHubModule.ts           [Githubアクセス用モジュール]
+│   │   │   └── GraphQLgetRepositories.ts [GraphQLクエリ]
+│   │   ├── Parts [サブパーツコンポーネント]
+│   │   │   ├── CircleButton [ボタンコンポーネント]
+│   │   │   │   └── index.tsx
+│   │   │   ├── FlexParent.tsx [配置スタイル定義用]
+│   │   │   └── LodingImage [ローディングアニメーション]
+│   │   │       ├── index.tsx
+│   │   │       └── loading.svg
+│   │   ├── RepositorieList [リポジトリリスト表示用]
+│   │   │   └── RepositorieList.tsx
+│   │   ├── TopArea [トップエリア]
+│   │   │   ├── TopArea.tsx
+│   │   │   └── Window [ログイン/ログアウトウインドウ]
+│   │   │       ├── LoginWindow.tsx
+│   │   │       ├── LogoutWindow.tsx
+│   │   │       ├── WindowModule.tsx
+│   │   │       └── WindowStyle.tsx
+│   │   ├── config.tsx [GitHub/FirebaseのAPIキー]
+│   │   ├── index.tsx  [Store設定等]
+│   │   ├── resource.d.ts [画像リソース定義用]
+│   │   └── tsconfig.json
+│   └── webpack.config.js
+└── package.json
 ```

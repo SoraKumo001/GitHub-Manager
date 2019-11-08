@@ -6,8 +6,8 @@ import {
   QLRepositoryResult,
   QLRepositories,
   getRepositoriesOrg
-} from "./GraphQL/getRepositories";
-import { FBGitAuthModule } from "./Firebase/FireBaseModule";
+} from "./GraphQLgetRepositories";
+import { FirebaseGitAuthModule } from "./FirebaseGitAuthModule";
 
 //リポジトリ情報の構造
 export type GitRepositories = {
@@ -47,7 +47,7 @@ interface State {
  * @extends {ReduxModule<State>}
  */
 export class GitHubModule extends ReduxModule<State> {
-  static includes = [FBGitAuthModule];
+  static includes = [FirebaseGitAuthModule];
   //Storeの初期状態
   static defaultState: State = { loading: false, scopes: [] };
 
@@ -58,7 +58,7 @@ export class GitHubModule extends ReduxModule<State> {
    * @memberof GitHubModule
    */
   public getLoginName() {
-    const firebaseModule = this.getModule(FBGitAuthModule);
+    const firebaseModule = this.getModule(FirebaseGitAuthModule);
     return firebaseModule.getUserName();
   }
   public setScopes(scopes: string[]) {
@@ -76,7 +76,7 @@ export class GitHubModule extends ReduxModule<State> {
    * @memberof GitHubModule
    */
   public login() {
-    const firebaseModule = this.getModule(FBGitAuthModule);
+    const firebaseModule = this.getModule(FirebaseGitAuthModule);
     firebaseModule.login(this.getState("scopes")!);
   }
   /**
@@ -85,7 +85,7 @@ export class GitHubModule extends ReduxModule<State> {
    * @memberof GitHubModule
    */
   public logout() {
-    const firebaseModule = this.getModule(FBGitAuthModule);
+    const firebaseModule = this.getModule(FirebaseGitAuthModule);
     firebaseModule.logout();
     this.setState({ repositories: [] });
   }
@@ -162,7 +162,7 @@ export class GitHubModule extends ReduxModule<State> {
    * @memberof GitHubModule
    */
   public async sendGitHub(params: string | object) {
-    const firebaseModule = this.getModule(FBGitAuthModule);
+    const firebaseModule = this.getModule(FirebaseGitAuthModule);
     const token = firebaseModule.getToken();
     if (token) {
       return Adapter.sendJsonAsync(
