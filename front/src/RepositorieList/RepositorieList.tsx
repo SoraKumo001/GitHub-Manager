@@ -90,10 +90,10 @@ export function RepositorieList() {
               <ListItem value={new Date(e.updatedAt).getTime()}>
                 <div>
                   <div>
-                    U:{dateFormat(new Date(e.updatedAt), "yyyy/mm/dd HH:mm")}
+                    U:{dateFormat(new Date(e.updatedAt), "yyyy/mm/dd HH:MM")}
                   </div>
                   <div>
-                    C:{dateFormat(new Date(e.createdAt), "yyyy/mm/dd HH:mm")}
+                    C:{dateFormat(new Date(e.createdAt), "yyyy/mm/dd HH:MM")}
                   </div>
                 </div>
               </ListItem>
@@ -104,7 +104,7 @@ export function RepositorieList() {
               >
                 <div>
                   {e.branche.update &&
-                    dateFormat(new Date(e.branche.update), "yyyy/mm/dd HH:mm")}
+                    dateFormat(new Date(e.branche.update), "yyyy/mm/dd HH:MM")}
                 </div>
                 <div>{e.branche.name}</div>
               </ListItem>
