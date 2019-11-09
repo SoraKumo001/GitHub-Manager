@@ -115,7 +115,13 @@ export class GitHubModule extends ReduxModule<State> {
           const repositories: { [key: string]: GitRepositories[0] } = {};
 
           const repPush = (_name: string, node: QLRepositories["nodes"][0]) => {
-            const branche = node.branches ? node.branches.nodes[0] : undefined;
+            const branche = node.branches
+              ? node.branches.nodes.sort(
+                  (a, b) =>
+                    new Date(b.target.committedDate).getTime() -
+                    new Date(a.target.committedDate).getTime()
+                )[0]
+              : undefined;
             repositories[node.id] = {
               id: node.id,
               name: node.name,

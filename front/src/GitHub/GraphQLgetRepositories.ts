@@ -16,7 +16,7 @@ fragment rep on RepositoryConnection {
     owner {
       login
     }
-    branches: refs(last: 1, refPrefix: "refs/heads/") {
+    branches: refs(last: 10, refPrefix: "refs/heads/") {
       totalCount
       nodes {
         name
@@ -67,7 +67,7 @@ fragment rep on RepositoryConnection {
     owner {
       login
     }
-    branches: refs(last: 1, refPrefix: "refs/heads/") {
+    branches: refs(last: 10, refPrefix: "refs/heads/") {
       totalCount
       nodes {
         name
