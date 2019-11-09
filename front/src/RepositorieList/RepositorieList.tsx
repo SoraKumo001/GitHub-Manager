@@ -25,6 +25,9 @@ const Root = styled.div`
     font-size: 80%;
     white-space: normal;
   }
+  #message {
+    white-space: normal;
+  }
 `;
 
 export function RepositorieList() {
@@ -61,11 +64,11 @@ export function RepositorieList() {
           <ListHeader width={250}>Name</ListHeader>
           <ListHeader width={100}>Owner</ListHeader>
           <ListHeader>Private</ListHeader>
-          <ListHeader width={100}>DefBlanch</ListHeader>
           <ListHeader type="number">Branches</ListHeader>
           <ListHeader type="number">Stars</ListHeader>
           <ListHeader type="number">Watchers</ListHeader>
           <ListHeader width={180}>Date</ListHeader>
+          <ListHeader width={180}>Last Branch</ListHeader>
           <ListHeader>Commit Message</ListHeader>
         </ListHeaders>
         {repositories &&
@@ -81,7 +84,6 @@ export function RepositorieList() {
                 <div id="org">{e.owner}</div>
               </ListItem>
               <ListItem>{e.private && "*"}</ListItem>
-              <ListItem>{(e.branche && e.branche.defaultName) || "-"}</ListItem>
               <ListItem>{(e.branche && e.branche.count) || 0}</ListItem>
               <ListItem>{e.stars}</ListItem>
               <ListItem>{e.watchers}</ListItem>
@@ -95,7 +97,20 @@ export function RepositorieList() {
                   </div>
                 </div>
               </ListItem>
-              <ListItem>{e.branche && e.branche.message}</ListItem>
+              <ListItem
+                value={
+                  e.branche.update ? new Date(e.branche.update).getTime() : 0
+                }
+              >
+                <div>
+                  {e.branche.update &&
+                    dateFormat(new Date(e.branche.update), "yyyy/mm/dd HH:mm")}
+                </div>
+                <div>{e.branche.name}</div>
+              </ListItem>
+              <ListItem>
+                <div id="message">{e.branche && e.branche.message}</div>
+              </ListItem>
             </ListRow>
           ))}
       </ListView>

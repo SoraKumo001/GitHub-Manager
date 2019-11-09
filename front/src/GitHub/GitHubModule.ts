@@ -18,10 +18,11 @@ export type GitRepositories = {
   stars: number;
   watchers: number;
   private: boolean;
-  branche?: {
-    defaultName: string;
+  branche: {
     count: number;
+    name: string;
     message: string;
+    update: string;
   };
   createdAt: string;
   updatedAt: string;
@@ -112,19 +113,20 @@ export class GitHubModule extends ReduxModule<State> {
       .then(e => {
         if (hasProperty<QLRepositoryResult["data"]>(e, "data")) {
           const repositories: { [key: string]: GitRepositories[0] } = {};
+
           const repPush = (_name: string, node: QLRepositories["nodes"][0]) => {
+            const branche = node.branches ? node.branches.nodes[0] : undefined;
             repositories[node.id] = {
               id: node.id,
               name: node.name,
               url: node.url,
               private: node.isPrivate,
-              branche: node.defaultBranchRef
-                ? {
-                    defaultName: node.defaultBranchRef.name,
-                    count: node.branches.totalCount,
-                    message: node.defaultBranchRef.target.message || ""
-                  }
-                : undefined,
+              branche: {
+                count: node.branches ? node.branches.totalCount : 0,
+                name: branche ? branche.name : "",
+                message: branche ? branche.target.message : "",
+                update: branche ? branche.target.committedDate : ""
+              },
               stars: node.stargazers.totalCount || 0,
               watchers: node.watchers.totalCount || 0,
               owner: node.owner.login,
@@ -142,9 +144,13 @@ export class GitHubModule extends ReduxModule<State> {
                 org.repositories.nodes.forEach(node => repPush(org.name, node));
             });
           const rep = Object.values(repositories).sort((a, b) => {
-            return (
-              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-            );
+            const av = a.branche.update
+              ? new Date(a.branche.update).getTime()
+              : 0;
+            const bv = b.branche.update
+              ? new Date(b.branche.update).getTime()
+              : 0;
+            return bv - av;
           });
           this.setState(rep, "repositories");
         } else this.setState({ repositories: [] });

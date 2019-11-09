@@ -3,10 +3,9 @@ export const getRepositories = `
 {
   viewer {
     name: login
-    repositories(last: 100) {
+    repositories(first: 100) {
       ...rep
     }
-  }
 }
 
 fragment rep on RepositoryConnection {
@@ -14,11 +13,20 @@ fragment rep on RepositoryConnection {
     id
     url
     name
-    owner{
+    owner {
       login
     }
-    branches: refs(first: 1, refPrefix: "refs/heads/") {
+    branches: refs(last: 1, refPrefix: "refs/heads/") {
       totalCount
+      nodes {
+        name
+        target {
+          ... on Commit {
+            committedDate
+            message
+          }
+        }
+      }
     }
     stargazers {
       totalCount
@@ -30,14 +38,6 @@ fragment rep on RepositoryConnection {
     createdAt
     updatedAt
     description
-    defaultBranchRef {
-      name
-      target {
-        ... on Commit {
-          message
-        }
-      }
-    }
   }
 }
 `;
@@ -45,13 +45,13 @@ export const getRepositoriesOrg = `
 {
   viewer {
     name: login
-    repositories(last: 100) {
+    repositories(first: 100) {
       ...rep
     }
-    organizations(last: 100) {
+    organizations(first: 100) {
       nodes {
         name
-        repositories(last: 100) {
+        repositories(first: 100) {
           ...rep
         }
       }
@@ -64,11 +64,20 @@ fragment rep on RepositoryConnection {
     id
     url
     name
-    owner{
+    owner {
       login
     }
-    branches: refs(first: 1, refPrefix: "refs/heads/") {
+    branches: refs(last: 1, refPrefix: "refs/heads/") {
       totalCount
+      nodes {
+        name
+        target {
+          ... on Commit {
+            committedDate
+            message
+          }
+        }
+      }
     }
     stargazers {
       totalCount
@@ -80,14 +89,6 @@ fragment rep on RepositoryConnection {
     createdAt
     updatedAt
     description
-    defaultBranchRef {
-      name
-      target {
-        ... on Commit {
-          message
-        }
-      }
-    }
   }
 }
 `;
@@ -99,10 +100,15 @@ export type QLRepositories = {
     owner: { login: string };
     url: string;
     isPrivate: boolean;
-    branches: { totalCount: number };
+    branches?: {
+      totalCount: number;
+      nodes: {
+        name: string;
+        target: { committedDate: string; message: string };
+      }[];
+    };
     watchers: { totalCount: number };
     stargazers: { totalCount: number };
-    defaultBranchRef: { name: string; target: { message: string } };
     createdAt: string;
     updatedAt: string;
     description: string;
