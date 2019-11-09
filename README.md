@@ -48,10 +48,33 @@ GitHub GraphQL API v4 の練習用プログラム
 │   │   │       ├── LogoutWindow.tsx
 │   │   │       ├── WindowModule.tsx
 │   │   │       └── WindowStyle.tsx
-│   │   ├── config.tsx [GitHub/FirebaseのAPIキー]
+│   │   ├── config.ts [GitHub/FirebaseのAPIキー]
 │   │   ├── index.tsx  [Store設定等]
 │   │   ├── resource.d.ts [画像リソース定義用]
 │   │   └── tsconfig.json
 │   └── webpack.config.js
 └── package.json
 ```
+
+## 自分のサイトで使用する場合
+
+FirebaseとGitHubにそれぞれ設定が必要となります
+
+### Firebaseで認証用プロジェクトの作成
+
+- [https://console.firebase.google.com/](https://console.firebase.google.com/)でプロジェクトを一つ作成します
+- Authentication -> ログイン方法 -> GitHubを有効にする
+- **認証コールバックURL**を取得(ClientIDとClientSecretは後で記入)
+
+### GitHubにアプリケーションを登録
+
+- [https://github.com/settings/developers](https://github.com/settings/developers)でアプリケーションを作成
+- アプリケーション名と**認証コールバックURLを設定**(HomepageURLは正確でなくとも良い)
+- 発行されたClientIDとClientSecretをFirebase側に設定
+
+### アプリケーション上で必要となるデータ
+
+config.tsファイルに以下の情報を設定します
+
+- Firebase -> APIキー、AuthDomain
+- GitHub   -> clientId

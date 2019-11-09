@@ -7,6 +7,8 @@ import { firebaseConfig } from "../config";
  *保存ステータス
  *
  * @interface State
+ * name GitHubユーザ名
+ * token GitHubAPIアクセストークン
  */
 interface State {
   name: string | null;
@@ -35,7 +37,7 @@ export class FirebaseGitAuthModule extends ReduxModule<State> {
     //認証スコープの定義
     const provider = new firebase.auth.GithubAuthProvider();
     scopes.forEach(scope => provider.addScope(scope));
-
+    //Firebase経由のGitHubへの認証
     firebase
       .auth()
       .signInWithPopup(provider)
@@ -64,9 +66,21 @@ export class FirebaseGitAuthModule extends ReduxModule<State> {
     this.setState({ name: null, token: null });
     if (FirebaseGitAuthModule.app) firebase.auth().signOut();
   }
+  /**
+   *GitHubアクセス用トークンの取得
+   *
+   * @returns
+   * @memberof FirebaseGitAuthModule
+   */
   public getToken() {
     return this.getState("token");
   }
+  /**
+   *GitHubユーザ名の取得
+   *
+   * @returns
+   * @memberof FirebaseGitAuthModule
+   */
   public getUserName() {
     return this.getState("name");
   }
