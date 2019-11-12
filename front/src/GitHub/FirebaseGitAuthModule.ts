@@ -19,7 +19,7 @@ interface State {
  *Firebase用GitHub認証モジュール
  *
  * @export
- * @class FBGitAuthModule
+ * @class FirebaseGitAuthModule
  * @extends {ReduxModule<State>}
  */
 export class FirebaseGitAuthModule extends ReduxModule<State> {
@@ -28,7 +28,7 @@ export class FirebaseGitAuthModule extends ReduxModule<State> {
   /**
    *GitHubApiログイン処理
    *
-   * @memberof FBGitAuthModule
+   * @memberof FirebaseGitAuthModule
    */
   public login(scopes: string[]) {
     //Firebaseの初期化
@@ -60,7 +60,7 @@ export class FirebaseGitAuthModule extends ReduxModule<State> {
   /**
    *GitHubAPIログアウト処理
    *
-   * @memberof FBGitAuthModule
+   * @memberof FirebaseGitAuthModule
    */
   public logout() {
     this.setState({ name: null, token: null });

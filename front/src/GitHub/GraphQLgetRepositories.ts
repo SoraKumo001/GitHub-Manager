@@ -3,7 +3,7 @@ export const getRepositories = `
 {
   viewer {
     name: login
-    repositories(first: 100) {
+    repositories(last: 100) {
       ...rep
     }
 }
@@ -45,13 +45,13 @@ export const getRepositoriesOrg = `
 {
   viewer {
     name: login
-    repositories(first: 100) {
+    repositories(last: 100) {
       ...rep
     }
-    organizations(first: 100) {
+    organizations(last: 100) {
       nodes {
         name
-        repositories(first: 100) {
+        repositories(last: 100) {
           ...rep
         }
       }
