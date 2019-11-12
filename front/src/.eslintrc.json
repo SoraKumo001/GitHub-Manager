@@ -8,6 +8,7 @@
     "prettier/@typescript-eslint"
   ],
   "plugins": [
+    "react-hooks",
     "@typescript-eslint",
     "react"
   ],
