@@ -6,7 +6,7 @@ GitHub GraphQL API v4 の練習用プログラム
 
 ## リンク
 
-- [動作サンプル](https://sorakumo001.github.io/GitHub-Manager/dist/)
+- [動作サンプル](https://sorakumo001.github.io/GitHub-Manager/)
 - [ソースコード](https://github.com/SoraKumo001/GitHub-Manager)
 
 ## 動作画面
