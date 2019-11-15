@@ -6,8 +6,8 @@ export const getRepositories = `
     repositories(last: 100) {
       ...rep
     }
+  }
 }
-
 fragment rep on RepositoryConnection {
   nodes {
     id
