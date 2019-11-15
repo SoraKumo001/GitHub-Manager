@@ -13,7 +13,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@jswf/adapter": "^0.1.1-devel",
+    "@jswf/adapter": "^0.1.0",
     "@jswf/react": "^1.0.4",
     "@jswf/redux-module": "^0.1.7",
     "@types/dateformat": "^3.0.1",
