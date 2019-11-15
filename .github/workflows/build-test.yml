@@ -1,5 +1,7 @@
-name: GitHub BuildTest
-on: [push]
+name: GitHub build-test
+on:
+  push:
+    branches-ignore: master
 
 jobs:
   build:
