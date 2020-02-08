@@ -339,12 +339,18 @@
   dependencies:
     axios "^0.19.0"
 
-"@jswf/react@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@jswf/react/-/react-1.0.4.tgz#01863a74aa80252c2d688b9352e6c282c31be23c"
-  integrity sha512-piBC0InHqAd6OmPurfpAVYZx/lxpNApmF4JUU36sQQZ6+j6EeLdmkMV5zqMcsY07Q+0e+Hp9EZU6Nbjk29ofpA==
+"@jswf/manager@^1.0.0-rev2":
+  version "1.0.0-rev2"
+  resolved "https://registry.yarnpkg.com/@jswf/manager/-/manager-1.0.0-rev2.tgz#8f2637a4e2544d11e48e4a5a9e925cf243226abb"
+  integrity sha512-etpRbcSRKHwAjvvxpuYwEcMywOaDvYny+NUdhgidUoOhHQNR9G86lvgNl0lx67viOv6g7bh9mnbNUrZa2zqzpg==
+
+"@jswf/react@^1.0.4-dev":
+  version "1.0.4-dev"
+  resolved "https://registry.yarnpkg.com/@jswf/react/-/react-1.0.4-dev.tgz#dd242bd0cd38aeda9b1026d94c6cc733fb84866a"
+  integrity sha512-YrOcw6Uu9TFXOErfvtTXdYoqA3C/O0oYmO0Whf3aXMXIXLay7pN7fbZFLs4P+CRvGnolminlzhWVtehxwnHIbw==
   dependencies:
-    react "~16.11.0"
+    "@jswf/manager" "^1.0.0-rev2"
+    react "~16.12.0"
     resize-observer-polyfill "~1.5.1"
     styled-components "~4.4.1"
 
@@ -5377,7 +5383,7 @@ react-redux@^7.1.3:
     prop-types "^15.7.2"
     react-is "^16.9.0"
 
-react@^16.11.0, react@~16.11.0:
+react@^16.11.0:
   version "16.11.0"
   resolved "https://registry.yarnpkg.com/react/-/react-16.11.0.tgz#d294545fe62299ccee83363599bf904e4a07fdbb"
   integrity sha512-M5Y8yITaLmU0ynd0r1Yvfq98Rmll6q8AxaEe88c8e7LxO8fZ2cNgmFt0aGAS9wzf1Ao32NKXtCl+/tVVtkxq6g==
@@ -5386,7 +5392,7 @@ react@^16.11.0, react@~16.11.0:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
 
-react@^16.12.0:
+react@^16.12.0, react@~16.12.0:
   version "16.12.0"
   resolved "https://registry.yarnpkg.com/react/-/react-16.12.0.tgz#0c0a9c6a142429e3614834d5a778e18aa78a0b83"
   integrity sha512-fglqy3k5E+81pA8s+7K0/T3DBCF0ZDOher1elBFzF7O6arXJgzyu/FW+COxFvAWXJoJN9KIZbT2LXlukwphYTA==
